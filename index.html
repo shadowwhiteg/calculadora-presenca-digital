@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Presença Digital - Centros Automotivos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        .form-group .description {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .range-container {
+            position: relative;
+            padding-top: 10px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .range-value {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-left: 10px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radio-item:hover {
+            border-color: #3b82f6;
+            background: #f1f5f9;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .radio-item.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .btn-calcular {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-calcular:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn-calcular:active {
+            transform: translateY(0);
+        }
+
+        .btn-calcular:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .resultado {
+            display: none;
+        }
+
+        .pontuacao-principal {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .medidor {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+        }
+
+        .medidor-circulo {
+            transform: rotate(-90deg);
+        }
+
+        .medidor-fundo {
+            fill: none;
+            stroke: #e2e8f0;
+            stroke-width: 20;
+        }
+
+        .medidor-progresso {
+            fill: none;
+            stroke-width: 20;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .medidor-texto {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .classificacao-badge {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .breakdown-item {
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .breakdown-item h4 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        .breakdown-pontos {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 5px;
+        }
+
+        .breakdown-entrada {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+            transition: width 1s ease;
+        }
+
+        .recomendacoes {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .recomendacoes h3 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .recomendacao-conteudo {
+            color: #334155;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        .pontos-fracos {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .pontos-fracos h4 {
+            color: #991b1b;
+            margin-bottom: 10px;
+        }
+
+        .pontos-fracos ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .pontos-fracos li {
+            color: #7f1d1d;
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .pontos-fracos li:before {
+            content: "⚠";
+            position: absolute;
+            left: 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .checkbox-group {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .breakdown-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Calculadora de Presença Digital</h1>
+            <p>Avalie a eficácia da presença digital do seu centro automotivo</p>
+        </div>
+
+        <div class="card" id="formulario">
+            <form id="formCalculadora">
+                <div class="form-group">
+                    <label>Nome da Empresa (opcional)</label>
+                    <input type="text" id="nomeEmpresa" placeholder="Ex: Auto Center Premium">
+                </div>
+
+                <div class="form-group">
+                    <label>Email (opcional)</label>
+                    <input type="email" id="email" placeholder="seu@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        1. Nota do Google Meu Negócio
+                        <span class="range-value" id="notaGMNValue">3.0</span>
+                    </label>
+                    <div class="description">Qual a nota média atual no Google Meu Negócio?</div>
+                    <div class="range-container">
+                        <input type="range" id="notaGMN" min="1.0" max="5.0" step="0.1" value="3.0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>2. Campanhas Pagas Ativas</label>
+                    <div class="description">Quais plataformas de anúncios pagos estão ativas?</div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="metaAds">
+                            <label for="metaAds">Meta Ads (Facebook/Instagram)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="googleAds">
+                            <label for="googleAds">Google Ads</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>3. Tempo de Resposta no WhatsApp</label>
+                    <div class="description">Qual a agilidade média de resposta?</div>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="tempoWhatsApp" value="otimo">
+                            <span><strong>Ótimo:</strong> Até 2 minutos (horário comercial) + resposta automática fora</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="tempoWhatsApp" value="bom">
+                            <span><strong>Bom:</strong> Até 10 minutos (horário comercial) ou só em horário comercial</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="tempoWhatsApp" value="ruim" checked>
+                            <span><strong>Precisa Melhorar:</strong> Mais de 30 minutos ou sem resposta fora do horário</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="postsSemanais">4. Frequência de Publicação nas Redes Sociais</label>
+                    <div class="description">Quantos posts por semana em média? (Instagram/Facebook)</div>
+                    <input type="number" id="postsSemanais" min="0" max="30" value="0" placeholder="Ex: 3">
+                </div>
+
+                <div class="form-group">
+                    <label for="taxaEngajamento">5. Taxa de Engajamento</label>
+                    <div class="description">Taxa média de engajamento (interações / seguidores × 100)</div>
+                    <input type="number" id="taxaEngajamento" min="0" max="100" step="0.1" value="0" placeholder="Ex: 2.5">
+                </div>
+
+                <button type="submit" class="btn-calcular">Calcular Presença Digital</button>
+            </form>
+        </div>
+
+        <div class="card loading" id="loading">
+            <div class="spinner"></div>
+            <p style="text-align: center; color: #64748b; font-size: 1.1rem;">Analisando sua presença digital...</p>
+        </div>
+
+        <div class="card resultado" id="resultado">
+            <div class="pontuacao-principal">
+                <div class="medidor">
+                    <svg class="medidor-circulo" width="200" height="200" viewBox="0 0 200 200">
+                        <circle class="medidor-fundo" cx="100" cy="100" r="85"></circle>
+                        <circle class="medidor-progresso" cx="100" cy="100" r="85" id="medidorProgresso"></circle>
+                    </svg>
+                    <div class="medidor-texto" id="pontuacaoTexto">0</div>
+                </div>
+                <div id="classificacaoBadge"></div>
+                <p style="margin-top: 15px; color: #64748b;" id="descricaoClassificacao"></p>
+            </div>
+
+            <div id="pontosFracosContainer"></div>
+
+            <h3 style="color: #1e293b; margin-bottom: 20px;">Detalhamento por Área</h3>
+            <div class="breakdown-grid" id="breakdownGrid"></div>
+
+            <div class="recomendacoes">
+                <h3>📋 Recomendações Personalizadas</h3>
+                <div class="recomendacao-conteudo" id="recomendacoesConteudo"></div>
+            </div>
+
+            <button class="btn-calcular" onclick="location.reload()" style="margin-top: 30px; background: linear-gradient(135deg, #64748b 0%, #475569 100%);">
+                Nova Análise
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO - URL DO WEBHOOK N8N (CONFIGURADO)
+        const WEBHOOK_URL = 'https://api.muvecom.com.br/v1/calculadora-presenca-digital';
+
+        // Atualizar valor do range
+        document.getElementById('notaGMN').addEventListener('input', function(e) {
+            document.getElementById('notaGMNValue').textContent = e.target.value;
+        });
+
+        // Marcar radio selecionado
+        document.querySelectorAll('.radio-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.radio-item').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input[type="radio"]').checked = true;
+            });
+        });
+
+        // Marcar radio inicial
+        document.querySelector('input[name="tempoWhatsApp"]:checked').closest('.radio-item').classList.add('selected');
+
+        // Submeter formulário
+        document.getElementById('formCalculadora').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const dados = {
+                nomeEmpresa: document.getElementById('nomeEmpresa').value || 'Centro Automotivo',
+                email: document.getElementById('email').value,
+                notaGMN: document.getElementById('notaGMN').value,
+                metaAds: document.getElementById('metaAds').checked,
+                googleAds: document.getElementById('googleAds').checked,
+                tempoWhatsApp: document.querySelector('input[name="tempoWhatsApp"]:checked').value,
+                postsSemanais: document.getElementById('postsSemanais').value,
+                taxaEngajamento: document.getElementById('taxaEngajamento').value
+            };
+
+            // Mostrar loading
+            document.getElementById('formulario').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.sucesso) {
+                    exibirResultado(resultado);
+                } else {
+                    alert('Erro ao calcular. Verifique se o workflow está ativo no n8n.');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao conectar com o servidor. Verifique:\n1. Se o workflow está ativo no n8n\n2. Se a URL do webhook está correta\n3. Se o n8n está rodando');
+                document.getElementById('formulario').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+
+        function exibirResultado(resultado) {
+            // Esconder loading
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('resultado').style.display = 'block';
+
+            // Medidor circular
+            const pontuacao = resultado.pontuacao.total;
+            const circunferencia = 2 * Math.PI * 85;
+            const offset = circunferencia - (pontuacao / 100) * circunferencia;
+            
+            const medidorProgresso = document.getElementById('medidorProgresso');
+            medidorProgresso.style.strokeDasharray = circunferencia;
+            medidorProgresso.style.strokeDashoffset = circunferencia;
+            medidorProgresso.style.stroke = resultado.classificacao.cor;
+            
+            setTimeout(() => {
+                medidorProgresso.style.strokeDashoffset = offset;
+            }, 100);
+
+            // Animação do número
+            animarNumero(0, pontuacao, 1500, document.getElementById('pontuacaoTexto'));
+
+            // Badge de classificação
+            document.getElementById('classificacaoBadge').innerHTML = `
+                <div class="classificacao-badge" style="background-color: ${resultado.classificacao.cor}">
+                    ${resultado.classificacao.nivel}
+                </div>
+            `;
+
+            document.getElementById('descricaoClassificacao').textContent = resultado.classificacao.descricao;
+
+            // Pontos fracos
+            if (resultado.pontosFracos.length > 0) {
+                document.getElementById('pontosFracosContainer').innerHTML = `
+                    <div class="pontos-fracos">
+                        <h4>⚠️ Áreas que Precisam de Atenção</h4>
+                        <ul>
+                            ${resultado.pontosFracos.map(pf => `<li>${pf}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else {
+                document.getElementById('pontosFracosContainer').innerHTML = '';
+            }
+
+            // Breakdown
+            const breakdownGrid = document.getElementById('breakdownGrid');
+            breakdownGrid.innerHTML = '';
+
+            const areas = [
+                { key: 'googleMeuNegocio', nome: 'Google Meu Negócio' },
+                { key: 'campanhasPagas', nome: 'Campanhas Pagas' },
+                { key: 'whatsapp', nome: 'WhatsApp' },
+                { key: 'frequenciaPublicacao', nome: 'Frequência de Publicação' },
+                { key: 'engajamento', nome: 'Engajamento' }
+            ];
+
+            areas.forEach(area => {
+                const dados = resultado.breakdown[area.key];
+                const div = document.createElement('div');
+                div.className = 'breakdown-item';
+                div.innerHTML = `
+                    <h4>${area.nome}</h4>
+                    <div class="breakdown-pontos">${dados.pontos}/${dados.maximo}</div>
+                    <div class="breakdown-entrada">${dados.entrada}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%" data-width="${dados.percentual}%"></div>
+                    </div>
+                `;
+                breakdownGrid.appendChild(div);
+            });
+
+            // Animar barras de progresso
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(bar => {
+                    bar.style.width = bar.getAttribute('data-width');
+                });
+            }, 200);
+
+            // Recomendações
+            document.getElementById('recomendacoesConteudo').textContent = resultado.recomendacoes;
+
+            // Scroll suave para resultado
+            document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function animarNumero(inicio, fim, duracao, elemento) {
+            const incremento = (fim - inicio) / (duracao / 16);
+            let atual = inicio;
+
+            const timer = setInterval(() => {
+                atual += incremento;
+                if (atual >= fim) {
+                    atual = fim;
+                    clearInterval(timer);
+                }
+                elemento.textContent = Math.round(atual);
+            }, 16);
+        }
+    </script>
+</body>
+</html>
+
