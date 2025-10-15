@@ -242,6 +242,40 @@
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             border-radius: 12px;
             margin-bottom: 30px;
+            position: relative;
+        }
+
+        .benchmark-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .benchmark-info h5 {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .benchmark-info .benchmark-valor {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #8b5cf6;
+            line-height: 1;
+        }
+
+        .benchmark-info .benchmark-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 3px;
         }
 
         .medidor {
@@ -402,6 +436,12 @@
             .breakdown-grid {
                 grid-template-columns: 1fr;
             }
+
+            .benchmark-info {
+                position: static;
+                margin: 0 auto 20px;
+                max-width: 200px;
+            }
         }
     </style>
 </head>
@@ -477,7 +517,7 @@
 
                 <div class="form-group">
                     <label for="taxaEngajamento">5. Taxa de Engajamento</label>
-                    <div class="description">Taxa média de engajamento (interações / seguidores × 100)</div>
+                    <div class="description">Taxa média de engajamento (em %)</div>
                     <input type="number" id="taxaEngajamento" min="0" max="100" step="0.1" value="0" placeholder="Ex: 2.5">
                 </div>
 
@@ -492,6 +532,11 @@
 
         <div class="card resultado" id="resultado">
             <div class="pontuacao-principal">
+                <div class="benchmark-info">
+                    <h5>Benchmark</h5>
+                    <div class="benchmark-valor">85</div>
+                    <div class="benchmark-label">Média do Segmento</div>
+                </div>
                 <div class="medidor">
                     <svg class="medidor-circulo" width="200" height="200" viewBox="0 0 200 200">
                         <circle class="medidor-fundo" cx="100" cy="100" r="85"></circle>
