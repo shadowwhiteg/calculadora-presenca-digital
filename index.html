@@ -460,6 +460,73 @@
             white-space: pre-wrap;
         }
 
+        .compartilhar-section {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .compartilhar-section h4 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .compartilhar-content {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .link-compartilhar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #1e293b;
+            word-break: break-all;
+            max-width: 500px;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .btn-copiar {
+            padding: 12px 24px;
+            background: white;
+            color: #8b5cf6;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-copiar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-copiar.copiado {
+            background: #22c55e;
+            color: white;
+        }
+
+        .id-resultado {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: white;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
         .pontos-fracos {
             background: #fef2f2;
             border-left: 4px solid #ef4444;
@@ -798,6 +865,19 @@
         </div>
 
         <div class="card resultado" id="resultado">
+            <div class="compartilhar-section">
+                <div class="id-resultado">
+                    🔖 ID do Resultado: <strong id="resultadoId">-</strong>
+                </div>
+                <h4>📤 Compartilhar este Resultado</h4>
+                <div class="compartilhar-content">
+                    <div class="link-compartilhar" id="linkCompartilhar">-</div>
+                    <button class="btn-copiar" id="btnCopiar" onclick="copiarLink()">
+                        📋 Copiar Link
+                    </button>
+                </div>
+            </div>
+
             <div class="pontuacao-principal">
                 <div class="benchmark-info">
                     <h5>Benchmark Médio</h5>
@@ -833,6 +913,112 @@
 
     <script>
         // CONFIGURAÇÃO - Calcular localmente conforme briefing v1.1
+        
+        // ============================================================
+        // SISTEMA DE ARMAZENAMENTO E COMPARTILHAMENTO DE RESULTADOS
+        // ============================================================
+        
+        // Gerar ID único usando timestamp + contador
+        function gerarIdUnico() {
+            const timestamp = Date.now();
+            const random = Math.floor(Math.random() * 1000);
+            return BigInt(timestamp) * 1000n + BigInt(random);
+        }
+
+        // Salvar resultado no localStorage
+        function salvarResultado(id, dados) {
+            try {
+                const resultados = obterTodosResultados();
+                resultados[id.toString()] = {
+                    ...dados,
+                    dataCriacao: new Date().toISOString(),
+                    id: id.toString()
+                };
+                localStorage.setItem('calculadoraResultados', JSON.stringify(resultados));
+                return true;
+            } catch (e) {
+                console.error('Erro ao salvar resultado:', e);
+                return false;
+            }
+        }
+
+        // Obter todos os resultados salvos
+        function obterTodosResultados() {
+            try {
+                const dados = localStorage.getItem('calculadoraResultados');
+                return dados ? JSON.parse(dados) : {};
+            } catch (e) {
+                console.error('Erro ao obter resultados:', e);
+                return {};
+            }
+        }
+
+        // Obter um resultado específico por ID
+        function obterResultado(id) {
+            const resultados = obterTodosResultados();
+            return resultados[id.toString()] || null;
+        }
+
+        // Gerar URL de compartilhamento
+        function gerarUrlCompartilhamento(id) {
+            const baseUrl = window.location.href.split('?')[0];
+            return `${baseUrl}?id=${id}`;
+        }
+
+        // Copiar link para área de transferência
+        function copiarLink() {
+            const linkElement = document.getElementById('linkCompartilhar');
+            const btnCopiar = document.getElementById('btnCopiar');
+            const link = linkElement.textContent;
+
+            navigator.clipboard.writeText(link).then(() => {
+                btnCopiar.textContent = '✅ Link Copiado!';
+                btnCopiar.classList.add('copiado');
+                
+                setTimeout(() => {
+                    btnCopiar.textContent = '📋 Copiar Link';
+                    btnCopiar.classList.remove('copiado');
+                }, 3000);
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                alert('Erro ao copiar link. Tente selecionar e copiar manualmente.');
+            });
+        }
+
+        // Carregar resultado da URL se houver ID
+        function carregarResultadoDaUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            
+            if (id) {
+                const resultado = obterResultado(id);
+                if (resultado) {
+                    // Ocultar formulário e mostrar resultado
+                    document.getElementById('formulario').style.display = 'none';
+                    exibirResultadoSalvo(resultado);
+                } else {
+                    alert('Resultado não encontrado. O link pode estar expirado ou inválido.');
+                }
+            }
+        }
+
+        // Exibir resultado salvo
+        function exibirResultadoSalvo(dados) {
+            document.getElementById('resultado').style.display = 'block';
+            
+            // Atualizar ID e link de compartilhamento
+            document.getElementById('resultadoId').textContent = dados.id;
+            const urlCompartilhamento = gerarUrlCompartilhamento(dados.id);
+            document.getElementById('linkCompartilhar').textContent = urlCompartilhamento;
+            
+            // Exibir resultado
+            exibirResultadoComAnimacao(dados);
+        }
+
+        // Executar ao carregar a página
+        window.addEventListener('DOMContentLoaded', () => {
+            carregarResultadoDaUrl();
+        });
         
         // Adicionar interatividade aos checkboxes
         document.querySelectorAll('.checkbox-item').forEach(item => {
@@ -976,20 +1162,42 @@
             if (pontuacoes.anuncios < 15) pontosFracos.push('Poucos anúncios ativos (benchmark: 18/20)');
             if (pontuacoes.whatsapp < 15) pontosFracos.push('Tempo de resposta WhatsApp lento (benchmark: 16/20)');
 
+            // Gerar ID único e preparar dados
+            const resultadoId = gerarIdUnico();
+            const dadosResultado = {
+                pontuacaoTotal: Math.round(pontuacaoTotal * 10) / 10,
+                pontuacoes,
+                detalhes,
+                classificacao,
+                pontosFracos,
+                nomeEmpresa: document.getElementById('nomeEmpresa').value || 'Centro Automotivo',
+                email: document.getElementById('email').value || ''
+            };
+
             // Simular delay e exibir resultado
             setTimeout(() => {
-                exibirResultado({
-                    pontuacaoTotal: Math.round(pontuacaoTotal * 10) / 10,
-                    pontuacoes,
-                    detalhes,
-                    classificacao,
-                    pontosFracos,
-                    nomeEmpresa: document.getElementById('nomeEmpresa').value || 'Centro Automotivo'
-                });
+                // Salvar resultado
+                salvarResultado(resultadoId, dadosResultado);
+                
+                // Adicionar ID ao objeto de dados
+                dadosResultado.id = resultadoId.toString();
+                
+                // Exibir resultado
+                exibirResultado(dadosResultado);
             }, 2000);
         }
 
         function exibirResultado(dados) {
+            // Atualizar ID e link de compartilhamento
+            document.getElementById('resultadoId').textContent = dados.id;
+            const urlCompartilhamento = gerarUrlCompartilhamento(dados.id);
+            document.getElementById('linkCompartilhar').textContent = urlCompartilhamento;
+            
+            // Exibir resultado com animação
+            exibirResultadoComAnimacao(dados);
+        }
+
+        function exibirResultadoComAnimacao(dados) {
             // Esconder loading
             document.getElementById('loading').style.display = 'none';
             document.getElementById('resultado').style.display = 'block';
